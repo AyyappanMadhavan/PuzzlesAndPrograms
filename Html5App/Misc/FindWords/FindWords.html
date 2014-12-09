@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+	<script src="jquery-1.7.1.js"></script>
+	<script src="FindWords_data.js"></script>
+	<link rel="stylesheet" type="text/css" href="mystyle.css">
+	<Title>Find Words</Title>		
+</head>
+<body>
+	<div id='puzzlearea'>
+		<script>
+			var rows=0;
+			var cols=0;
+			var idnum = 0;
+			var toppos = 0;
+			var leftpos = 0;			
+			var curridx = -1;
+			var selectionarray = new Array();
+			var bigString = '';
+			var chosenWords = [];
+			var layoutGrid = [];
+			var ptrGrid = [];			
+
+			initGrid();
+			chooseWords();
+			layoutWords();			
+
+
+			function initGrid(){
+				layoutGrid = [];
+				prtGrid = [];
+				rows = 6; cols =6;
+			}
+
+			function getALetter(){				
+					//var curridx = Math.ceil((Math.random()*leng) + 1);					
+					return (wordarray[++curridx]);
+			}
+			function validate(){
+				//alert(selectionarray);
+				selectionarray = [];				
+			}
+
+
+			function chooseWords(){
+				var noOfWords = 6;	
+				var noOfLet = 6;			
+				var fillLetters = 0;
+				
+				while(chosenWords.length <6){
+					var randwords = getRandomSelection(wordList.length-1);
+					var wrd = wordList[randwords];										
+					if(wrd.length <=6){
+						if(chosenWords.length == 0)
+							chosenWords.push(wrd);
+						else
+						{
+							if(chosenWords.indexOf(wrd)<0)
+								chosenWords.push(wordList[randwords]);
+						}
+					}
+				}
+								
+				bigString = chosenWords.toString().replace(/,/g,'');
+
+				if(bigString.length < 36){
+					fillLetters = 36 - bigString.length;
+				}
+				
+				for(i=0;i<fillLetters;i++){
+					var rd = getRandomSelection(lettersToFill.length-1);				
+					bigString += lettersToFill[rd];					
+				}				
+				
+				wordarray = bigString;						
+				//stringShuffle(wordarray);				
+			}
+
+			function layoutWords(){
+				var layoutTypes = ['HOR','VER','DIAD','DIAU'];
+				for(i=0;i<chosenWords.length;i++){
+					var word = chosenWords[i];					
+					//pick random layout style
+					var chType = layoutTypes[getRandomSelection(layoutTypes.length-1)];
+
+					//pick random pos in grid
+					var startPos = getRandomPos(word);
+
+					switch(chType){
+						case 'HOR':
+
+						case 'VER':
+						case 'DIAD':
+						case 'DIAU':
+					}
+				}
+
+			}
+			function stringShuffle(word) {
+    			var a = word.split("");
+        		var n = a.length;
+
+    			for(var i = n - 1; i > 0; i--) {
+        			var j = Math.floor(Math.random() * (i + 1));
+        			var tmp = a[i];
+	        		a[i] = a[j];
+    	    		a[j] = tmp;
+    			}
+    			wordarray = a.join("");    			
+			}
+
+			function getRandomSelection(range){
+				return (Math.ceil(Math.random()*range)-1);
+			}
+
+			function getRandomPos(word){
+				
+				var randomX = -1;
+				var randomY = -1;				
+				var wrdLength = word.length;
+				//Empty Grid				
+				if(layoutGrid.length == 0){
+					randomX = getRandomSelection(5);		
+					randomY = randomX;													
+					if(wrdLength > rows/2){
+						//alert('word cannot start at '+ wrdLength);
+					}
+					else{
+						layoutGrid.push([word,randomX,randomY]);
+					}
+				}
+				else{
+					//alert(layoutGrid);
+				}
+			}
+		</script>
+	</div>
+	<div>
+		<input Type="Button"  class="unhideit" id="validate" Value="Click to validate word" onClick='validate();'/> 
+	</div>
+	<div>		
+	</div>
+</body>
+</html>

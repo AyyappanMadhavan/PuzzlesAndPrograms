@@ -1,0 +1,14 @@
+{
+  "name": "Hangman - Guess It...",
+  "description": "Get on your guessing senses and crack the cricket stars, movie names.",
+  "version": "0.0.0.1",
+  "manifest_version": 2,
+  "icons": {
+    "128": "hmicon.png"
+  },
+  "app": {   
+    "launch": {
+      "web_url": "http://ayyappanmadhavan.comoj.com/hangman/hangman.html"
+    }
+  }
+}

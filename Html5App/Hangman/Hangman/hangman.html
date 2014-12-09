@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+	<script src="jquery-1.7.1.js"></script>
+	<script src="hangman_data.js"></script>
+	<link rel="stylesheet" type="text/css" href="mystyle.css">
+	<Title>Hangman - Guess It...</Title>	
+	<div class="heading">Hangman - Guess it...</div>
+</head>
+<body class='cricket'>
+	<div id="notes" class="textclass2">
+	<B>Note:</B>You have 6 attempts to guess all the letters in the name.
+    Each wrong attempt will push the man towards death..	
+	</div>
+	<div id="alphalist" style="position:relative;top:55px;">
+		<span class="textclass">Available :</span>
+		<script>								
+			var addhere = document.getElementById('alphalist');
+			var usedhere = document.getElementById('usedalphabets');			
+			var alphaarray = new Array("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z");			
+			//var alphaarray = new Array();
+			var usedarray = new Array();		
+			var sleft = 0;
+			var lastalphabet="";
+			var wrongattempts = 0;
+			var wordcompleted = 0;
+			var currmode = "";			
+			
+			$(document).ready(function(){
+				drawInitialStage();	 //Draw Hangman initial set of images		
+				drawAlphabets(alphaarray);  //Draw the Alphabet list			
+				currmode = "cricket";			
+				loadPuzzle();
+				document.getElementById('clear').addEventListener('click', function() {													
+							refreshUI();										
+				}, false);
+				
+			});					
+			
+			
+			function drawAlphabets(alphaarray){
+				var k = -1
+				for(i=0; i<alphaarray.length; i++) {   	   				  	
+         			$("<div/>", {
+         				id: 'alpha-'+i,
+         				style:'position:absolute;margin-left:' + i * 40 + 'px',
+         				"class":'alphabets',
+         				text:alphaarray[i],         				
+         				click: function(){
+         					$(this).attr("disabled", "disabled");
+         					$(this).slideUp();         					
+         					lastalphabet = $(this).text();
+         					usedarray.push(lastalphabet);    
+         					k++;         					
+         					//for(k=0;k<usedarray.length;k++){                  												
+         						$("<div/>", {
+         							id:'usedalpha-'+lastalphabet,
+         							style:'position:absolute;margin-left:' + k * 40 + 'px',
+         							"class":'usedalphabetRed',
+         							text:usedarray[k]
+         						}).appendTo('#usedalphabets');         						
+         					//}
+         					$("#puzzle").click();
+         				}
+         			}).appendTo(addhere);         			
+    			} 			
+			}			
+
+			function drawInitialStage()
+			{
+				var c=document.getElementById("hangman");
+				var ctx=c.getContext("2d");
+				ctx.clearRect(0,0,400,300);
+				ctx.shadowBlur=0;
+				ctx.shadowColor="";
+				ctx.globalCompositeOperation="source-over";
+				ctx.strokeStyle="black";//#DEB887";
+				ctx.lineWidth = 3;
+				ctx.beginPath();ctx.moveTo(5,5);ctx.lineTo(5,290);ctx.stroke();
+				ctx.beginPath();ctx.moveTo(0,10);ctx.lineTo(175,10);ctx.stroke();
+				ctx.beginPath();ctx.moveTo(170,5);ctx.lineTo(170,290);ctx.stroke();
+				ctx.strokeStyle="black"//#A52A2A";
+				ctx.lineWidth = 5;
+				ctx.beginPath();ctx.moveTo(40,250);ctx.lineTo(40,135);ctx.stroke();
+				ctx.beginPath();ctx.moveTo(40,135);ctx.lineTo(140,135);ctx.stroke();
+				ctx.beginPath();ctx.moveTo(140,135);ctx.lineTo(140,160);ctx.stroke();
+			}
+		</script>
+	</div>	
+	<div id="usedalphabets" style="position:relative;top:90px;">
+		<span class="textclass">Used:</span>
+	</div>	
+	<div id="puzzleholder" width="10px; word-wrap:break-word;">
+	<div id="puzzle" style="position:relative;top:140px;">							
+			<script>			
+				var rdmnum="";
+				var cp="";
+				var tdata="";
+				var cntry="";
+				var hintstr="";
+				function loadPuzzle(){
+						cp="";tdata="";hintstr="";
+						if(currmode=='cricket'){
+							rdmnum = ((Math.ceil(Math.random()*(playerlist.length))));								
+							cp = (playerlist[rdmnum].toUpperCase()).split(";");	
+							tdata=cp[0];
+							hintstr = cp[1];								
+						}
+						else if(currmode == 'imdbt250'){
+							rdmnum = ((Math.ceil(Math.random()*(imdbTop250.length))));											
+							cp = (imdbTop250[rdmnum].toUpperCase()).split(";");	
+							tdata=cp[2];							
+							hintstr = "Released in "+cp[3]+", this movie ranks "+cp[0]+" with a rating of "+cp[1];
+						}
+						else if(currmode == 'kollywood2012'){
+							rdmnum = ((Math.ceil(Math.random()*(kollywood2012.length))));								
+							cp = (kollywood2012[rdmnum].toUpperCase()).split(";");								
+							tdata=cp[0];							
+							hintstr = "Directed by "+cp[1]+", this " + cp[3].toLowerCase() + " had "+cp[2]+" in the lead";					
+						}
+						//Show underscores 						
+						drawPuzzle(tdata,false);	
+				}
+
+				//Reveal Letters Found
+				$('#puzzle').click(function(eve){	
+						if(usedarray.length>0){												
+						var posfnd = tdata.indexOf(usedarray[usedarray.length-1]);						
+						if(posfnd==-1)
+						{
+							wrongattempts++;
+							if(wrongattempts == 3)
+								giveHint();															
+							updateHangman(wrongattempts);						
+						}
+						while(posfnd!=-1)
+						{
+							var dividtoopen=document.getElementById('puzdata-'+posfnd);
+							$(dividtoopen).text(tdata[posfnd]);					
+							$('#usedalpha-'+usedarray[usedarray.length-1]).removeClass('usedalphabetRed').addClass('usedalphabetGreen');									
+							posfnd = tdata.indexOf(usedarray[usedarray.length-1],(posfnd+1));
+							wordcompleted ++;
+						}						
+
+						if(wordcompleted == tdata.length || wrongattempts == 6){							
+							decideResult();
+						}													
+					}	
+				});					
+				
+				//Give Hint
+				function giveHint(){
+						$('#hintbtn').removeClass('hideit').addClass('unhideit');	
+						$('#hintbtn').click(function(eve){
+							$('#statusdiv').removeClass('hideit').addClass('unhideit');	
+							var hinttext = 'Sorry..No Hint Available...';
+							if(currmode=='cricket'){
+								var hinttext = "Do you know, this player is from ";
+								hinttext += "<SPAN CLASS='hint'>"+ countrymap[hintstr] +"</SPAN>";
+							}
+							else
+							{
+								hinttext = hintstr;
+							}
+							
+							$('#statusdiv').html(hinttext);	
+
+						});				
+				}			
+				
+				//Draw puzzle
+				function drawPuzzle(tdata1,showans){		
+					
+					for(l=0;l<tdata.length;l++)
+					{
+						if(tdata[l]==' '){
+							tmpdispdata = " ";
+							wordcompleted++;
+						}				
+						else if(isNaN(tdata[l])==false || chksplchar(tdata[l])){							
+							tmpdispdata = tdata[l];
+							wordcompleted++;
+						}		
+						else
+						{
+							if(showans)
+								tmpdispdata = tdata[l];
+							else
+								tmpdispdata = '__';
+						}
+
+						if(showans)
+						{							
+							$('#puzdata-'+l).text(tmpdispdata);
+							$('#hintbtn').removeClass('unhideit').addClass('hideit');	
+						}
+						else
+						{
+							$("<div/>", {
+								id: 'puzdata-'+l,
+								"class": 'puzzledata textclass',
+								style:'position:absolute;margin-left:' + l * 40 + 'px',
+								text:tmpdispdata
+								}).appendTo('#puzzle');
+							}
+						}
+						
+				}
+				
+				//chk for spl chars
+				function chksplchar(charac){
+					var iChars = "!@#$%^&*()+=-[]\\\';,./{}|\":<>?";
+					if(iChars.indexOf(charac) !=-1)
+						return true;
+					else
+						return false;
+				}
+				//Draw Hangman Images
+				function drawRope(ctx,redraw){
+					ctx.lineWidth = 4;
+					var endpt = 25;
+					if(redraw)
+						endpt = 45;
+					ctx.beginPath();ctx.moveTo(90,10);ctx.lineTo(90,endpt);ctx.stroke();
+				}
+
+				function drawHead(ctx,redraw){
+					ctx.lineWidth=6;
+					var endpt = 40;
+					if(redraw)
+						endpt = 60;
+					ctx.beginPath();ctx.arc(90,endpt,15,0,4*Math.PI);ctx.stroke();
+				}
+
+				function drawBody(ctx,redraw){
+					ctx.lineWidth=10;
+					var endpt = 115;
+					var stpt = 55;
+					if(redraw){
+						endpt = 135;
+						stpt = 70;
+					}
+					ctx.beginPath();ctx.moveTo(90,stpt);ctx.lineTo(90,endpt);ctx.stroke();
+				}
+
+				function drawHands(ctx,redraw){
+					//(90,70) to (50,80)
+					//(90,70) to (130,80)
+					ctx.lineWidth=10;
+					var stpt1A = 90;
+					var stpt1B = 70;
+					var endpt1A=50;
+					var endpt1B = 80;
+					var endpt2A = 130;
+					var endpt2B = 80;
+					if(redraw){
+						stpt1A = 90;
+						stpt1B = 90;
+						endpt1A = 50;
+						endpt1B = 100;
+						endpt2A = 130;
+						endpt2B = 100;
+					}
+					ctx.beginPath();ctx.moveTo(stpt1A,stpt1B);ctx.lineTo(endpt1A,endpt1B);ctx.stroke();
+					ctx.beginPath();ctx.moveTo(stpt1A,stpt1B);ctx.lineTo(endpt2A,endpt2B);ctx.stroke();
+				}
+
+				function drawLegs(ctx,redraw){
+					ctx.lineWidth=10;
+					var stpt1A = 90;
+					var stpt1B = 115;
+					var endpt1A=50;
+					var endpt1B = 130;
+					var endpt2A = 130;
+					var endpt2B = 130;
+					if(redraw){
+						stpt1A = 90;
+						stpt1B = 135;
+						endpt1A = 50;
+						endpt1B = 150;
+						endpt2A = 130;
+						endpt2B = 150;
+					}
+					ctx.beginPath();ctx.moveTo(stpt1A,stpt1B);ctx.lineTo(endpt1A,endpt1B);ctx.stroke();
+					ctx.beginPath();ctx.moveTo(stpt1A,stpt1B);ctx.lineTo(endpt2A,endpt2B);ctx.stroke();
+				}
+
+				function updateHangman(wattempts){					
+					var mycanvas = document.getElementById('hangman');
+					var ctx =mycanvas.getContext("2d");					
+					switch(wattempts)
+					{
+						case 1:
+							//draw Rope
+							drawRope(ctx,false);
+							break;
+						case 2:
+							//draw Head
+							drawHead(ctx,false);
+							break;
+						case 3:
+							//draw Body
+							drawBody(ctx,false);
+							break;
+						case 4:
+							//draw Hands
+							drawHands(ctx,false);
+							break;
+						case 5:
+							//draw Legs
+							drawLegs(ctx,false);
+							break;
+						case 6:		
+							//redraw everything										
+							drawInitialStage();
+
+							ctx.shadowBlur=20;
+							ctx.shadowColor="white";
+							drawRope(ctx,true);
+							drawHead(ctx,true);
+							drawBody(ctx,true);
+							drawHands(ctx,true);
+							drawLegs(ctx,true);
+
+							ctx.strokeStyle = "#FFFFFF";
+							ctx.globalCompositeOperation="xor";										
+
+							ctx.lineWidth = 5;							
+							
+							ctx.beginPath();ctx.moveTo(40,250);ctx.lineTo(40,135);ctx.stroke();
+							ctx.beginPath();ctx.moveTo(40,135);ctx.lineTo(140,135);ctx.stroke();
+							ctx.beginPath();ctx.moveTo(140,135);ctx.lineTo(140,160);ctx.stroke();
+					}					
+				}
+
+				function refreshUI(){
+										
+					$('#hintbtn').removeClass('unhideit').addClass('hideit');	
+					$('#statusdiv').removeClass('unhideit').addClass('hideit');														
+					
+					drawInitialStage();
+					drawAlphabets(alphaarray);
+					
+					for(q=0;q<usedarray.length;q++)
+						$('#usedalpha-'+usedarray[q]).remove();
+														
+					for(w=0;w<tdata.length;w++)	{																				
+						$('#puzdata-'+w).remove();
+					}
+												
+					for(s=0;s<alphaarray.length;s++)
+						$('#alpha-'+s).remove();
+					
+					usedarray = new Array();
+					wrongattempts = 0;	
+					wordcompleted = 0;	
+					loadPuzzle();
+				}
+
+				function decideResult(){
+					$('#statusdiv').removeClass('hideit').addClass('unhideit');		
+					if(wordcompleted == tdata.length){
+						$('#statusdiv').html('Wow!.. <font face="cursive">Congratulations</font>. That is some amazing guessing..');
+						$('#hintbtn').removeClass('unhideit').addClass('hideit');	
+					}
+					else
+					{
+					  	$('#statusdiv').html('Oops.. You ran out of attempts. Try again.');							
+					  	drawPuzzle(tdata,true); //Complete the letter if not finished						  	
+					}
+							
+					for(p=0;p<alphaarray.length;p++)									
+					{
+						$('#alpha-'+p).off("click");
+						$('#alpha-'+p).removeClass('alphabets').addClass('offalphabets');
+					}
+									
+				}
+				//http://cdn.theunlockr.com/wp-content/uploads/2012/04/IMDb.jpg
+				//http://logopond.com/logos/33cfb8720dda6b3c1dc7603ddb34f70e.png
+				function changeingamemode(){
+					currmode = $("select#gamemode").val();	
+
+					switch(currmode){
+						case 'imdbt250':
+							$('body').css('background-image','url()');
+							$('body').css('background-size','contain');
+							$('body').css('background-position','580px 250px');  //
+							$('#courtesy').html('Background Image courtesy: <u>http://cdn.theunlockr.com/wp-content/uploads/2012/04/IMDb.jpg</u>');	
+							break;
+						case 'cricket':
+							$('body').css('background-image','url(b4.jpg)');
+							break;
+						case 'kollywood2012':
+							$('body').css('background-image','url()');
+							$('body').css('background-size','contain');
+							$('body').css('background-position','680px 250px');  //
+							$('#courtesy').html('Background Image courtesy: <u>http://logopond.com/logos/33cfb8720dda6b3c1dc7603ddb34f70e.png</u>');	
+							break;						
+					}										
+					refreshUI();
+				}
+				
+			</script>			
+	</div>
+	</div>
+	<div id='statusdiv' class="statuslocator unhideit textclass">		
+	</div>
+	<div id='imagediv' class='imagedivlocator unhideit'>
+	</div>	
+	<div id="controldiv" class="controlarea">
+		<input Type="Button"  class="unhideit" id="clear" Value="New Game" /> 
+		<input Type="Button"  class="hideit hintposlocator" id="hintbtn" style="background:#00CC00; color:#FFFFFF" value="Need a hint?" /> 
+	</div>
+	<div id='optionarea' class='optionclass textclass'>
+	Choose here to test yourself 
+		<select id='gamemode' onChange='changeingamemode();' autocomplete="off">
+			<option value='cricket' selected>Cricket Stars</option>
+			<option value='imdbt250'>IMDB Top 250</option>
+			<option value='kollywood2012'>Tamil Movies 2012</option>
+		</select>
+	</div>
+	<canvas id="hangman" class="hangman"></canvas> 
+	<div id='courtesy' class="courtesylocator textclass2">
+	Background Image courtesy: <u>http://ponytone.com/wp-content/uploads/2013/01/red_cricket_ball.jpg</u>
+	<div>
+</body>
+</html>	

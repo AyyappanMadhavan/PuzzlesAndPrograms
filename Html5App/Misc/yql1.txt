@@ -1,0 +1,1 @@
+select content from html where url = 'http://en.wikipedia.org/wiki/Tamil_films_of_2010' and xpath='//table[11]/tr/td/a'

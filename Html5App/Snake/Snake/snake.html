@@ -1,0 +1,110 @@
+<head>
+	<Title></Title>
+	<script src="js/jquery-1.7.1.js"></script>
+	<style>@import "css/snake.css";</style>
+</head>
+<body>
+<div id = 'container' tabindex = "1"></div>
+<script>
+
+var x_velocity = 5;
+var y_velocity = 0;
+var move_boundary_Y = 0;
+d= {};
+tail = [];
+head="";
+var Snake = function(id) {
+     this.id = id;        
+     this.snake_piece = "<div class = 'snake-piece' id = 'snake-piece_"+id+"'></div>";       
+};
+
+Snake.prototype.setPosition = function(){
+	 if(tail && tail.length>0){
+	 	tail.forEach(function(t){
+	 		$('#snake-piece_head').append(t);
+	 	});
+	 }
+};
+
+Snake.prototype.updateSnakePos = function(){	
+	//Set boundaries
+	move_boundary_Y = $('#container').height() - $('.snake-piece').height()-2;	
+	move_boundary_X = $('#container').width() - $('.snake-piece').width()-2;	
+
+	//Get current position
+	var newL = $('.snake-piece').position().left;
+	var newT = $('.snake-piece').position().top;		
+	
+	//React to key press
+	if(d && d[37]){ //left arrow
+		newL = newL-x_velocity;				
+	}
+	if(d && d[39]){ //right arrow
+		newL = newL+x_velocity;				
+	}
+	if(d && d[38]){ //up arrow		
+		newT = newT-x_velocity;		
+	}
+	if(d && d[40]){ //down arrow		
+		newT = newT+x_velocity;		
+	}
+
+	//Limit the snake moves within the container
+	if(newL<0)
+		newL = 0;
+	if(newL> move_boundary_X)
+		newL = move_boundary_X;
+	
+	if(newT<0)
+		newT = 0;
+	if(newT>move_boundary_Y)
+		newT = move_boundary_Y;
+	
+	//Render new position
+	$('.snake-piece').css("left", newL+"px");
+	$('.snake-piece').css("top", newT+"px");
+}
+
+
+$(document).ready(function() {
+	console.log("Document ready");	
+	head = new Snake('head');
+	$('#container').append(head.snake_piece);	
+	head.setPosition();		
+
+	//Add Tails
+	for(var i=0;i<10;i++){
+		tail[i] = new Snake('tail_'+i);	
+		tail[i].setPosition();
+	}
+
+	console.log(tail);
+	$(window).keyup(function (event){		
+		d[event.which] = true;
+		switch(event.which){
+			case 37:
+				d[38] = false;d[39] = false;d[40] = false;
+				break;
+			case 38:
+				d[37] = false;d[39] = false;d[40] = false;
+				break;
+			case 39:
+				d[38] = false;d[37] = false;d[40] = false;
+				break;
+			case 40:
+				d[38] = false;d[37] = false;d[39] = false;
+				break;
+		}
+		
+	});				
+	
+	setInterval(function(){
+		head.updateSnakePos();
+	},50);
+});	
+
+
+
+</script>
+
+</body>
