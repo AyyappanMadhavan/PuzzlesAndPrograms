@@ -1,0 +1,77 @@
+<html !DOCTYPE>
+
+<head>
+	 <title>My ToDo DashBoard</title>
+	 <link rel="stylesheet" type="text/css" href="../css/main.css">
+	 <script type="text/javascript" src="../js/UIMethods.js"></script>
+	 <script type="text/javascript" src="../js/jquery-1.11.3.js"></script>
+	 <script type="text/javascript" src="../js/database.js"></script>
+	 
+</head>
+
+<body>
+<div class="heading">ToDo Board</div>
+<div class="container">
+
+	<div class="tododisplay" id='divdisplay'>
+		<div class="rack" id="wip">
+			<div class="rackheading">Work In Progress</div>						
+		</div>
+
+		<div class="rack" id="pipe">
+			<div class="rackheading">Pipeline</div>			
+		</div>
+
+		<div class="rack" id="issuetrack">
+			<div class="rackheading">Open Issue Tracker</div>					
+		</div>
+
+		<div class="rack" id="complete">
+			<div class="rackheading">Complete</div>		
+		</div>
+	</div>
+
+	<div class="todocreate" id="divcreate">
+		<div id='collapsebutton' class="collapse" onclick="toggleCollapse('divcreate');"></div>
+		<!--Form To Add TO DO Items -->
+		<span class='heading bolderTxt'>Add ToDo Items</span>
+		<form id="todoform" class='formstyle'>
+			<label><Span class='labelColor'> Rack: </Span>
+				<input type="text" id='idracktype' name='idracktype' list='rackType' placeholder='Select a rack name' required> 
+				<datalist id='rackType'>
+					<Option value='Work In Progress' />
+					<Option value='Pipeline' />
+					<Option value='Open Issue Tracker' />
+				</datalist>
+			</label>
+
+			 <label><span class='labelColor'> Task Desc: </span>				
+				<textarea id="todotask" rows=5 cols=100 placeholder='TasK Description' name='todotask' required></textarea>
+			</label> 
+
+			<input id="submit" type="submit" value="Post To Rack" formtarget="_self">
+				
+		</form>
+	</div>
+
+	<div class="collapsedDiv" id="collapsedCreate">
+		<div id='collapsebutton' class="collapse" onclick="toggleCollapse('collapsedCreate');"></div>
+	</div>
+
+</div>
+
+
+</body>
+
+<script>
+$(document).ready(function(){
+	toggleCollapse('divcreate');
+	openDB();	
+	readDB(loadToDoItems);	
+
+});
+
+$('#todoform').bind('submit',manualValidate);
+
+</script>
+</html>
